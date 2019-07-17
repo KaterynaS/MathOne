@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MathOne</string>
+    <string name="highest_score_0">Highest score</string>
+    <string name="score_0">Score: 0</string>
+    <string name="hello_there_this_is_where_we_are_going_to_add_something">place for math problem</string>
+    <string name="submit">submit</string>
+    <string name="choiceFour">4</string>
+    <string name="choiceThree">3</string>
+    <string name="choiceTwo">2</string>
+    <string name="choiceOne">1</string>
+</resources>
