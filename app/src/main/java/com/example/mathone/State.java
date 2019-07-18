@@ -30,8 +30,22 @@ public class State extends Application {
         return currentLevel;
     }
 
+    public void addToCurrentScore(int scoreToAdd)
+    {
+        currentScore = currentScore + scoreToAdd;
+    }
+
+    public void increaseLevel()
+    {
+        currentLevel = currentLevel + 1;
+    }
+
     public Question getCurrentQuestion() {
         return currentQuestion;
+    }
+
+    public void setCurrentQuestion(Question currentQuestion) {
+        this.currentQuestion = currentQuestion;
     }
 }
 
