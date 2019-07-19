@@ -167,13 +167,26 @@ public class Question {
                 newQuestion.setCorrectAnswerIndex(corrAnsIndex);
                 break;
 
-            default:
+            case 5:
                 //minus or plus
                 Random random = new Random();
                 int a = random.nextInt(2);
                 if(a == 0){newQuestion = generatePlusOrMinusQuestion();}
                 else {newQuestion = generateMultiplicationQuestion(currentLvl);}
-                newQuestion.setQuestionType(QuestionType.CHECKBOX);
+                newQuestion.setQuestionType(QuestionType.TYPEIN);
+                corrAnsIndex = generateNumberInRange(0,3);
+                answerChoices = generateAnswerChoices(newQuestion.getCorrectAnswer(), corrAnsIndex);
+                newQuestion.setAnswerChoices(answerChoices);
+                newQuestion.setCorrectAnswerIndex(corrAnsIndex);
+                break;
+
+            default:
+                //minus or plus
+                random = new Random();
+                a = random.nextInt(2);
+                if(a == 0){newQuestion = generatePlusOrMinusQuestion();}
+                else {newQuestion = generateMultiplicationQuestion(currentLvl);}
+                newQuestion.setQuestionType(QuestionType.TYPEIN);
                 corrAnsIndex = generateNumberInRange(0,3);
                 answerChoices = generateAnswerChoices(newQuestion.getCorrectAnswer(), corrAnsIndex);
                 newQuestion.setAnswerChoices(answerChoices);

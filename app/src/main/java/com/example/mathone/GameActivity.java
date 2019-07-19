@@ -16,20 +16,39 @@ import android.widget.Toast;
 import java.text.MessageFormat;
 import java.util.Random;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView questionTextView;
     private TextView scoreTextView;
     private TextView levelTextView;
 
+    //truefalse
     private Button trueButton;
     private Button falseButton;
 
+    //radio
     private Button submitButton;
     private RadioButton radioButtonOne;
     private RadioButton radioButtonTwo;
     private RadioButton radioButtonThree;
     private RadioButton radioButtonFour;
+
+    //typein
+    private TextView typeInInputTextView;
+    private Button deleteButton;
+    private Button submitTypeInButton;
+    private Button numZeroButton;
+    private Button numOneButton;
+    private Button numTwoButton;
+    private Button numThreeButton;
+    private Button numFourButton;
+    private Button numFiveButton;
+    private Button numSixButton;
+    private Button numSevenButton;
+    private Button numEightButton;
+    private Button numNineButton;
+    String typeInDigitsString = "";
+    int typeInInt = 0;
 
 
     @Override
@@ -81,13 +100,11 @@ public class GameActivity extends AppCompatActivity {
                         //Log.d("OnCreate", "true pressed, answer is " + correctAns);
                         if(appState.getCurrentQuestion().isCorrect() == true)
                         {
-                            Toast.makeText(GameActivity.this, "correct!", Toast.LENGTH_SHORT).show();
-                            appState.addToCurrentScore(1);
-                            updateScore();
+                            userAnswerIsCorrect();
                         }
                         else
                         {
-                            Toast.makeText(GameActivity.this, "wrong", Toast.LENGTH_SHORT).show();
+                            userAnswerIsWrong();
                         }
                         updateQuestion();
                     }
@@ -101,13 +118,11 @@ public class GameActivity extends AppCompatActivity {
                         //Log.d("OnCreate", "false pressed, answer is " + correctAns);
                         if(appState.getCurrentQuestion().isCorrect() == false)
                         {
-                            Toast.makeText(GameActivity.this, "correct", Toast.LENGTH_SHORT).show();
-                            appState.addToCurrentScore(1);
-                            updateScore();
+                            userAnswerIsCorrect();
                         }
                         else
                         {
-                            Toast.makeText(GameActivity.this, "wrong", Toast.LENGTH_SHORT).show();
+                            userAnswerIsWrong();
                         }
                         updateQuestion();
                     }
@@ -154,7 +169,16 @@ public class GameActivity extends AppCompatActivity {
 
             //todo TYPEIN
             case TYPEIN:
+            {
+                layout.removeAllViews();
+                child = getLayoutInflater().inflate(R.layout.typein_ui, null);
+                layout.addView(child);
+
+                int userInput = getUserTypeIn();
+
                 break;
+            }
+
             default:
                 child = getLayoutInflater().inflate(R.layout.radiobutton_ui, null);
                 layout.addView(child);
@@ -163,6 +187,40 @@ public class GameActivity extends AppCompatActivity {
         return appState.getCurrentQuestion();
     }
 
+    private int getUserTypeIn() {
+
+        //todo place typeInInputTextView in a questionTextView after equal sign
+        typeInInputTextView = findViewById(R.id.input_textview);
+        deleteButton = findViewById(R.id.delete_button);
+        submitTypeInButton = findViewById(R.id.submit_button);
+
+        numZeroButton = findViewById(R.id.num_zero_button);
+        numOneButton = findViewById(R.id.num_one_button);
+        numTwoButton = findViewById(R.id.num_two_button);
+        numThreeButton = findViewById(R.id.num_three_button);
+        numFourButton = findViewById(R.id.num_four_button);
+        numFiveButton = findViewById(R.id.num_five_button);
+        numSixButton = findViewById(R.id.num_six_button);
+        numSevenButton = findViewById(R.id.num_seven_button);
+        numEightButton = findViewById(R.id.num_eight_button);
+        numNineButton = findViewById(R.id.num_nine_button);
+
+
+        deleteButton.setOnClickListener(this);
+        submitTypeInButton.setOnClickListener(this);
+        numZeroButton.setOnClickListener(this);
+        numOneButton.setOnClickListener(this);
+        numTwoButton.setOnClickListener(this);
+        numThreeButton.setOnClickListener(this);
+        numFourButton.setOnClickListener(this);
+        numFiveButton.setOnClickListener(this);
+        numSixButton.setOnClickListener(this);
+        numSevenButton.setOnClickListener(this);
+        numEightButton.setOnClickListener(this);
+        numNineButton.setOnClickListener(this);
+
+        return 0;
+    }
 
     private void isCorrectCheckboxChoosen() {
 
@@ -181,30 +239,39 @@ public class GameActivity extends AppCompatActivity {
             RadioButton radioButton = (RadioButton)rg.findViewById(selectedId);
             String selectedRadioButtonValue = radioButton.getText().toString();
 
-            if(corrAns==Integer.valueOf(selectedRadioButtonValue))
-            {
-                Toast.makeText(GameActivity.this, "Correct!", Toast.LENGTH_SHORT).show();
-                appState.addToCurrentScore(1);
-            }
-            else
-            {
-                Toast.makeText(GameActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
-                if(appState.getCurrentScore() >= 2)
-                {
-                    //appState.subtractOneFromCurrentScore();
-                }
-            }
-            updateScore();
-            //appState.setCurrentQuestion(updateQuestion());
+            checkAnswer(Integer.valueOf(selectedRadioButtonValue));
             rg.clearCheck();
             updateQuestion();
         }
     }
 
+    private void checkAnswer(int userInput) {
+
+        State appState = ((State)getApplicationContext());
+        if(appState.getCurrentQuestion().getCorrectAnswer() == userInput)
+        {
+            userAnswerIsCorrect();
+        }
+        else
+        {
+            userAnswerIsWrong();
+        }
+        updateScore();
+    }
+
+    private void userAnswerIsWrong() {
+        Toast.makeText(GameActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
+        updateScore();
+    }
+
+    private void userAnswerIsCorrect() {
+        State appState  = ((State)getApplicationContext());
+        Toast.makeText(GameActivity.this, "Correct!", Toast.LENGTH_SHORT).show();
+        appState.addToCurrentScore(1);
+        updateScore();
+    }
 
     private void updateScore() {
-
-
 
         State appState  = ((State)getApplicationContext());
         int scoreToShow = appState.getCurrentScore();
@@ -229,9 +296,8 @@ public class GameActivity extends AppCompatActivity {
 
         Log.d("GameActivity", "level: " + appState.getCurrentLevel());
         //next level?
-        if(appState.getCurrentScore() >= 5*appState.getCurrentLevel())
+        if(appState.getCurrentScore() >= appState.getCurrentLevel()*5)
         {
-
             nextLevel();
 
             Log.d("GameActivity", "level: " + appState.getCurrentLevel());
@@ -285,5 +351,83 @@ public class GameActivity extends AppCompatActivity {
 
     private void updateQuestionTextView(Question currentQuestion) {
         questionTextView.setText(currentQuestion.getQuestionText());
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId())
+        {
+            case R.id.num_zero_button:
+                addDigitToInputTextView(0);
+                break;
+            case R.id.num_one_button:
+            addDigitToInputTextView(1);
+                break;
+            case R.id.num_two_button:
+                addDigitToInputTextView(2);
+                break;
+            case R.id.num_three_button:
+                addDigitToInputTextView(3);
+                break;
+            case R.id.num_four_button:
+                addDigitToInputTextView(4);
+                break;
+            case R.id.num_five_button:
+                addDigitToInputTextView(5);
+                break;
+            case R.id.num_six_button:
+                addDigitToInputTextView(6);
+                break;
+            case R.id.num_seven_button:
+                addDigitToInputTextView(7);
+                break;
+            case R.id.num_eight_button:
+                addDigitToInputTextView(8);
+                break;
+            case R.id.num_nine_button:
+                addDigitToInputTextView(9);
+                break;
+            case R.id.delete_button:
+                deleteLastDigitFromInputTextView();
+                break;
+            case R.id.submit_button:
+                submitInput();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void submitInput() {
+        if(typeInDigitsString.length() < 1)
+        {
+            //todo why is it updating question?
+            Toast.makeText(GameActivity.this,
+                    "Please, enter your answer",
+                    Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            typeInInt = Integer.valueOf(typeInDigitsString);
+            checkAnswer(typeInInt);
+            typeInDigitsString = "";
+            typeInInt = 0;
+            updateQuestion();
+        }
+
+    }
+
+    private void deleteLastDigitFromInputTextView() {
+        if(typeInDigitsString.length()>=1)
+        {
+            typeInDigitsString = typeInDigitsString.substring(0, typeInDigitsString.length() - 1);
+            typeInInputTextView.setText(typeInDigitsString);
+        }
+    }
+
+    private void addDigitToInputTextView(int i) {
+        typeInDigitsString = typeInDigitsString + i;
+        typeInInputTextView.setText(typeInDigitsString);
     }
 }
