@@ -180,17 +180,38 @@ public class Question {
                 newQuestion.setCorrectAnswerIndex(corrAnsIndex);
                 break;
 
-            default:
+            case 6:
+                //minus, plus or mult
+                random = new Random();
+                a = random.nextInt(2);
+                if(a == 0){newQuestion = generatePlusOrMinusQuestion();}
+                else {newQuestion = generateMultiplicationQuestion(currentLvl);}
+                newQuestion.setQuestionType(QuestionType.SEEKBAR);
+                break;
+
+            case 7:
                 //minus or plus
                 random = new Random();
                 a = random.nextInt(2);
                 if(a == 0){newQuestion = generatePlusOrMinusQuestion();}
                 else {newQuestion = generateMultiplicationQuestion(currentLvl);}
-                newQuestion.setQuestionType(QuestionType.TYPEIN);
+                newQuestion.setQuestionType(QuestionType.COMPARE);
+                //generate answer choices (from 0 to 4)
+                //as an array of 0-s and 1-s {0, 1, 0, 0}
+                //0 - wrong, 1 - correct
                 corrAnsIndex = generateNumberInRange(0,3);
                 answerChoices = generateAnswerChoices(newQuestion.getCorrectAnswer(), corrAnsIndex);
                 newQuestion.setAnswerChoices(answerChoices);
                 newQuestion.setCorrectAnswerIndex(corrAnsIndex);
+                break;
+
+            default:
+                //minus, plus or mult
+                random = new Random();
+                a = random.nextInt(2);
+                if(a == 0){newQuestion = generatePlusOrMinusQuestion();}
+                else {newQuestion = generateMultiplicationQuestion(currentLvl);}
+                newQuestion.setQuestionType(QuestionType.SEEKBAR);
                 break;
         }
 

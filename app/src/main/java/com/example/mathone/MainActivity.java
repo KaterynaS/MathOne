@@ -15,11 +15,14 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText userInputEditText;
     private Button imReadyButton;
+    AppState appState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        appState = AppState.getInstance();
 
         imReadyButton = findViewById(R.id.im_ready_button);
 
@@ -27,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 getUserName();
-                State appState  = ((State)getApplicationContext());
                 Log.d("OnClick", "input: " + appState.getUserName());
                 letsBeginDialog();
             }
@@ -38,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
     private void getUserName() {
         userInputEditText = findViewById(R.id.enterNameEdittext);
         String userInput = String.valueOf(userInputEditText.getText());
-        State appState  = ((State)getApplicationContext());
         appState.setUserName(userInput);
     }
 
@@ -49,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void letsBeginDialog() {
         AlertDialog.Builder a_builder = new AlertDialog.Builder(MainActivity.this);
-        State appState  = ((State)getApplicationContext());
         String message = "Ok " + appState.getUserName() + ",\nLet's begin!";
         a_builder.setMessage(message)
                 .setCancelable(false)

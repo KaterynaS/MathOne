@@ -1,22 +1,31 @@
 package com.example.mathone;
 
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.widget.CardView;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.warkiz.widget.IndicatorSeekBar;
 
 import java.text.MessageFormat;
 import java.util.Random;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private AppState appState;
 
     private TextView questionTextView;
     private TextView scoreTextView;
@@ -32,6 +41,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private RadioButton radioButtonTwo;
     private RadioButton radioButtonThree;
     private RadioButton radioButtonFour;
+
+    //seekbar
+    private SeekBar seekBar;
+    private IndicatorSeekBar indicatorSeekBar;
+    private Button seekBarSubmit;
 
     //typein
     private TextView typeInInputTextView;
@@ -50,30 +64,29 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     String typeInDigitsString = "";
     int typeInInt = 0;
 
+    int gameSpeed = 3;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_game);
 
         questionTextView = findViewById(R.id.question_textview);
         scoreTextView = findViewById(R.id.score_text_view);
         levelTextView = findViewById(R.id.level_text_view);
 
-
-        Question currentQuestion = updateQuestion();
-        updateQuestionTextView(currentQuestion);
-
+        //if there is no question
+        appState = AppState.getInstance();
+        appState.setCurrentQuestion(updateQuestion());
+        updateQuestionTextView();
     }
 
     private Question updateQuestion() {
-        State appState = ((State)getApplicationContext());
+
         Question nextQuestion = new Question();
         nextQuestion = nextQuestion.generateQuestion(appState.getCurrentLevel());
         appState.setCurrentQuestion(nextQuestion);
-        questionTextView.setText(nextQuestion.getQuestionText());
-
 
         //change answer ui depending on questionType
         LinearLayout layout = (LinearLayout)findViewById(R.id.ui_container);
@@ -95,36 +108,91 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 trueButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        State appState  = ((State)getApplicationContext());
-
                         //Log.d("OnCreate", "true pressed, answer is " + correctAns);
-                        if(appState.getCurrentQuestion().isCorrect() == true)
+                        if(appState.getCurrentQuestion().isCorrect())
                         {
-                            userAnswerIsCorrect();
+                            onCorrectAnswer().setAnimationListener(new Animation.AnimationListener() {
+                                @Override
+                                public void onAnimationStart(Animation animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animation animation) {
+                                    updateQuestion();
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animation animation) {
+
+                                }
+                            });
                         }
                         else
                         {
-                            userAnswerIsWrong();
+                            onWrongAnswer().setAnimationListener(new Animation.AnimationListener() {
+                                @Override
+                                public void onAnimationStart(Animation animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animation animation) {
+                                    updateQuestion();
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animation animation) {
+
+                                }
+                            });
                         }
-                        updateQuestion();
+
                     }
                 });
 
                 falseButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        State appState  = ((State)getApplicationContext());
-
                         //Log.d("OnCreate", "false pressed, answer is " + correctAns);
-                        if(appState.getCurrentQuestion().isCorrect() == false)
+                        if(!appState.getCurrentQuestion().isCorrect())
                         {
-                            userAnswerIsCorrect();
+                            onCorrectAnswer().setAnimationListener(new Animation.AnimationListener() {
+                                @Override
+                                public void onAnimationStart(Animation animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animation animation) {
+                                    updateQuestion();
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animation animation) {
+
+                                }
+                            });
                         }
                         else
                         {
-                            userAnswerIsWrong();
+                            onWrongAnswer().setAnimationListener(new Animation.AnimationListener() {
+                                @Override
+                                public void onAnimationStart(Animation animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animation animation) {
+                                    updateQuestion();
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animation animation) {
+
+                                }
+                            });
                         }
-                        updateQuestion();
                     }
 
                 });
@@ -134,60 +202,85 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             case CHECKBOX:
             {
                 layout.removeAllViews();
-                child = getLayoutInflater().inflate(R.layout.radiobutton_ui, null);
+                child = getLayoutInflater().inflate(R.layout.checkbox_ui, null);
                 layout.addView(child);
-
-                submitButton = findViewById(R.id.answer_button);
-                radioButtonOne = findViewById(R.id.choice_1_radio_button);
-                radioButtonTwo = findViewById(R.id.choice_2_radio_button);
-                radioButtonThree = findViewById(R.id.choice_3_radio_button);
-                radioButtonFour = findViewById(R.id.choice_4_radio_button);
-
-                String ansChOne = String.valueOf(appState.getCurrentQuestion().getAnswerChoices()[0]);
-                radioButtonOne.setText(ansChOne);
-
-                String ansChTwo = String.valueOf(appState.getCurrentQuestion().getAnswerChoices()[1]);
-                radioButtonTwo.setText(ansChTwo);
-
-                String ansChThree = String.valueOf(appState.getCurrentQuestion().getAnswerChoices()[2]);
-                radioButtonThree.setText(ansChThree);
-
-                String ansChFour = String.valueOf(appState.getCurrentQuestion().getAnswerChoices()[3]);
-                radioButtonFour.setText(ansChFour);
-
-
-                submitButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        isCorrectCheckboxChoosen();
-                    }
-                });
-
-
+                checkCheckBoxInput();
                 break;
             }
 
-            //todo TYPEIN
             case TYPEIN:
             {
                 layout.removeAllViews();
                 child = getLayoutInflater().inflate(R.layout.typein_ui, null);
                 layout.addView(child);
+                getUserTypeIn();
+                break;
+            }
 
-                int userInput = getUserTypeIn();
-
+            case SEEKBAR:
+            {
+                layout.removeAllViews();
+                child = getLayoutInflater().inflate(R.layout.seekbar_ui, null);
+                layout.addView(child);
+                checkSeekBarInput();
                 break;
             }
 
             default:
-                child = getLayoutInflater().inflate(R.layout.radiobutton_ui, null);
+                child = getLayoutInflater().inflate(R.layout.checkbox_ui, null);
                 layout.addView(child);
         }
 
+        updateQuestionTextView();
         return appState.getCurrentQuestion();
     }
 
-    private int getUserTypeIn() {
+    private void checkCheckBoxInput() {
+
+        submitButton = findViewById(R.id.answer_button);
+        radioButtonOne = findViewById(R.id.choice_1_radio_button);
+        radioButtonTwo = findViewById(R.id.choice_2_radio_button);
+        radioButtonThree = findViewById(R.id.choice_3_radio_button);
+        radioButtonFour = findViewById(R.id.choice_4_radio_button);
+
+        String ansChOne = String.valueOf(appState.getCurrentQuestion().getAnswerChoices()[0]);
+        radioButtonOne.setText(ansChOne);
+
+        String ansChTwo = String.valueOf(appState.getCurrentQuestion().getAnswerChoices()[1]);
+        radioButtonTwo.setText(ansChTwo);
+
+        String ansChThree = String.valueOf(appState.getCurrentQuestion().getAnswerChoices()[2]);
+        radioButtonThree.setText(ansChThree);
+
+        String ansChFour = String.valueOf(appState.getCurrentQuestion().getAnswerChoices()[3]);
+        radioButtonFour.setText(ansChFour);
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isCorrectCheckboxChosen();
+            }
+        });
+    }
+
+    private void checkSeekBarInput() {
+
+        //seekbar
+        seekBarSubmit = findViewById(R.id.seekbar_submit_button);
+
+        indicatorSeekBar = findViewById(R.id.indicator_seekbar);
+        seekBarSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                int a = indicatorSeekBar.getProgress();
+                checkAnswer(a);
+                updateQuestion();
+            }
+        });
+    }
+
+    private void getUserTypeIn() {
 
         //todo place typeInInputTextView in a questionTextView after equal sign
         typeInInputTextView = findViewById(R.id.input_textview);
@@ -205,7 +298,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         numEightButton = findViewById(R.id.num_eight_button);
         numNineButton = findViewById(R.id.num_nine_button);
 
-
         deleteButton.setOnClickListener(this);
         submitTypeInButton.setOnClickListener(this);
         numZeroButton.setOnClickListener(this);
@@ -218,13 +310,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         numSevenButton.setOnClickListener(this);
         numEightButton.setOnClickListener(this);
         numNineButton.setOnClickListener(this);
-
-        return 0;
     }
 
-    private void isCorrectCheckboxChoosen() {
+    private void isCorrectCheckboxChosen() {
 
-        State appState = ((State)getApplicationContext());
         int corrAns = appState.getCurrentQuestion().getCorrectAnswer();
 
         RadioGroup rg = (RadioGroup) findViewById(R.id.radio_group);
@@ -247,60 +336,56 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void checkAnswer(int userInput) {
 
-        State appState = ((State)getApplicationContext());
         if(appState.getCurrentQuestion().getCorrectAnswer() == userInput)
         {
-            userAnswerIsCorrect();
+            onCorrectAnswer().setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    updateQuestion();
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
         }
         else
         {
-            userAnswerIsWrong();
+            onWrongAnswer().setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    updateQuestion();
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
         }
-        updateScore();
-    }
-
-    private void userAnswerIsWrong() {
-        Toast.makeText(GameActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
-        updateScore();
-    }
-
-    private void userAnswerIsCorrect() {
-        State appState  = ((State)getApplicationContext());
-        Toast.makeText(GameActivity.this, "Correct!", Toast.LENGTH_SHORT).show();
-        appState.addToCurrentScore(1);
         updateScore();
     }
 
     private void updateScore() {
 
-        State appState  = ((State)getApplicationContext());
         int scoreToShow = appState.getCurrentScore();
         scoreTextView.setText("Score: " + scoreToShow);
 
-        if(appState.getCurrentScore() >=55)
-        {
-            AlertDialog.Builder a_builder = new AlertDialog.Builder(GameActivity.this);
-
-            String message = appState.getUserName() + "You are super smart! Now have some rest ;-)";
-            a_builder.setMessage(message)
-                    .setCancelable(false)
-                    .setPositiveButton("Rest",new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    });
-            AlertDialog alert = a_builder.create();
-            alert.show();
-        }
-
-        Log.d("GameActivity", "level: " + appState.getCurrentLevel());
         //next level?
-        if(appState.getCurrentScore() >= appState.getCurrentLevel()*5)
+        if(appState.getCurrentScore() >= appState.getCurrentLevel()*gameSpeed)
         {
             nextLevel();
-
-            Log.d("GameActivity", "level: " + appState.getCurrentLevel());
             //"next level" dialog
             AlertDialog.Builder a_builder = new AlertDialog.Builder(GameActivity.this);
 
@@ -336,21 +421,19 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     });
             AlertDialog alert = a_builder.create();
             alert.show();
-
         }
     }
 
     private void nextLevel() {
 
-        State appState  = ((State)getApplicationContext());
         appState.increaseLevel();
         int lvl = appState.getCurrentLevel();
         String level = "Level: " + lvl;
         levelTextView.setText(level);
     }
 
-    private void updateQuestionTextView(Question currentQuestion) {
-        questionTextView.setText(currentQuestion.getQuestionText());
+    private void updateQuestionTextView() {
+        questionTextView.setText(appState.getCurrentQuestion().getQuestionText());
     }
 
     @Override
@@ -415,7 +498,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             typeInInt = 0;
             updateQuestion();
         }
-
     }
 
     private void deleteLastDigitFromInputTextView() {
@@ -430,4 +512,74 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         typeInDigitsString = typeInDigitsString + i;
         typeInInputTextView.setText(typeInDigitsString);
     }
+
+    private Animation onWrongAnswer() {
+        Toast.makeText(GameActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
+        //shakeAnimation();
+        updateScore();
+        return shakeAnimation();
+    }
+
+    private Animation onCorrectAnswer() {
+        Toast.makeText(GameActivity.this, "Correct!", Toast.LENGTH_SHORT).show();
+        appState.addToCurrentScore(1);
+        updateScore();
+        return fadeViewAnimation();
+    }
+
+    private Animation fadeViewAnimation() {
+        final CardView cardView = findViewById(R.id.card_view);
+        AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f, 0.0f);
+
+        alphaAnimation.setDuration(500);
+        alphaAnimation.setRepeatCount(1);
+        alphaAnimation.setRepeatMode(Animation.RESTART);
+
+        cardView.setAnimation(alphaAnimation);
+
+        alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                cardView.setCardBackgroundColor(Color.GREEN);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                cardView.setCardBackgroundColor(Color.WHITE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) { }
+        });
+
+        return alphaAnimation;
+
+    }
+
+    private Animation shakeAnimation() {
+        Animation shake = AnimationUtils.loadAnimation(GameActivity.this,
+                R.anim.shake_animation);
+        final CardView cardView = findViewById(R.id.card_view);
+        cardView.setAnimation(shake);
+
+        shake.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                cardView.setCardBackgroundColor(Color.RED);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                cardView.setCardBackgroundColor(Color.WHITE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        return shake;
+    }
+
 }

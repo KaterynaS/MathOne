@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/seekbar_ui_container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <com.warkiz.widget.IndicatorSeekBar
+        android:id="@+id/indicator_seekbar"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="391dp"
+        android:layout_height="wrap_content"
+        app:isb_max="20"
+        app:isb_min="0"
+        app:isb_thumb_color="#3C9737"
+        app:isb_thumb_size="30dp"
+        app:isb_indicator_text_size="30sp"
+        app:isb_ticks_count="21"
+        app:isb_track_background_color="#545454"
+        app:isb_track_background_size="4dp"
+        app:isb_track_progress_color="#2764FE"
+        app:isb_track_progress_size="6dp" />
+
+
+    <Button
+        android:id="@+id/seekbar_submit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="Submit" />
+
+</LinearLayout>
