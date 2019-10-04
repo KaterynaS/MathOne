@@ -89,148 +89,72 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         appState.setCurrentQuestion(nextQuestion);
 
         //change answer ui depending on questionType
-        LinearLayout layout = (LinearLayout)findViewById(R.id.ui_container);
+        LinearLayout questionUIcontainerLayout = (LinearLayout)findViewById(R.id.ui_container);
         View child;
+
+        questionUIcontainerLayout.removeAllViews();
 
         switch (appState.getCurrentQuestion().getQuestionType())
         {
             case TRUEFALSE:
             {
-                layout.removeAllViews();
-                child = getLayoutInflater().inflate(R.layout.true_false_ui, null);
-                layout.addView(child);
+                TrueFalseUI trueFalseUI = new TrueFalseUI(GameActivity.this);
 
-                //get user input
-                trueButton = findViewById(R.id.true_button);
-                falseButton = findViewById(R.id.false_button);
 
-                //check users answer
-                trueButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Log.d("OnCreate", "true pressed, answer is " + correctAns);
-                        if(appState.getCurrentQuestion().isCorrect())
-                        {
-                            onCorrectAnswer().setAnimationListener(new Animation.AnimationListener() {
-                                @Override
-                                public void onAnimationStart(Animation animation) {
 
-                                }
+                trueFalseUI.handleTrueFalse(questionUIcontainerLayout);
 
-                                @Override
-                                public void onAnimationEnd(Animation animation) {
-                                    updateQuestion();
-                                }
+                boolean isUserCorrect = trueFalseUI.isAnswerCorrect();
 
-                                @Override
-                                public void onAnimationRepeat(Animation animation) {
+                if(!isUserCorrect)
+                {
+                    shakeAnimation();
+                    break;
+                }
+                else if(isUserCorrect)
+                {
+                    fadeView();
+                    break;
+                }
 
-                                }
-                            });
-                        }
-                        else
-                        {
-                            onWrongAnswer().setAnimationListener(new Animation.AnimationListener() {
-                                @Override
-                                public void onAnimationStart(Animation animation) {
-
-                                }
-
-                                @Override
-                                public void onAnimationEnd(Animation animation) {
-                                    updateQuestion();
-                                }
-
-                                @Override
-                                public void onAnimationRepeat(Animation animation) {
-
-                                }
-                            });
-                        }
-
-                    }
-                });
-
-                falseButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Log.d("OnCreate", "false pressed, answer is " + correctAns);
-                        if(!appState.getCurrentQuestion().isCorrect())
-                        {
-                            onCorrectAnswer().setAnimationListener(new Animation.AnimationListener() {
-                                @Override
-                                public void onAnimationStart(Animation animation) {
-
-                                }
-
-                                @Override
-                                public void onAnimationEnd(Animation animation) {
-                                    updateQuestion();
-                                }
-
-                                @Override
-                                public void onAnimationRepeat(Animation animation) {
-
-                                }
-                            });
-                        }
-                        else
-                        {
-                            onWrongAnswer().setAnimationListener(new Animation.AnimationListener() {
-                                @Override
-                                public void onAnimationStart(Animation animation) {
-
-                                }
-
-                                @Override
-                                public void onAnimationEnd(Animation animation) {
-                                    updateQuestion();
-                                }
-
-                                @Override
-                                public void onAnimationRepeat(Animation animation) {
-
-                                }
-                            });
-                        }
-                    }
-
-                });
-                break;
             }
+            break;
+
 
             case CHECKBOX:
             {
-                layout.removeAllViews();
                 child = getLayoutInflater().inflate(R.layout.checkbox_ui, null);
-                layout.addView(child);
+                questionUIcontainerLayout.addView(child);
+
                 checkCheckBoxInput();
+
                 break;
             }
 
             case TYPEIN:
             {
-                layout.removeAllViews();
                 child = getLayoutInflater().inflate(R.layout.typein_ui, null);
-                layout.addView(child);
+                questionUIcontainerLayout.addView(child);
                 getUserTypeIn();
+
                 break;
             }
 
             case SEEKBAR:
             {
-                layout.removeAllViews();
                 child = getLayoutInflater().inflate(R.layout.seekbar_ui, null);
-                layout.addView(child);
+                questionUIcontainerLayout.addView(child);
                 checkSeekBarInput();
+
                 break;
             }
 
             default:
                 child = getLayoutInflater().inflate(R.layout.checkbox_ui, null);
-                layout.addView(child);
+                questionUIcontainerLayout.addView(child);
         }
 
+        //todo do we need to update textview here??
         updateQuestionTextView();
         return appState.getCurrentQuestion();
     }
@@ -275,7 +199,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
                 int a = indicatorSeekBar.getProgress();
                 checkAnswer(a);
-                updateQuestion();
+                //updateQuestion();
             }
         });
     }
@@ -330,7 +254,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             checkAnswer(Integer.valueOf(selectedRadioButtonValue));
             rg.clearCheck();
-            updateQuestion();
+            //updateQuestion();
         }
     }
 
@@ -338,41 +262,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         if(appState.getCurrentQuestion().getCorrectAnswer() == userInput)
         {
-            onCorrectAnswer().setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    updateQuestion();
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-            });
+            userAnswerIsCorrect();
         }
         else
         {
-            onWrongAnswer().setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    updateQuestion();
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-            });
+            userAnswerIsWrong();
         }
         updateScore();
     }
@@ -496,7 +390,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             checkAnswer(typeInInt);
             typeInDigitsString = "";
             typeInInt = 0;
-            updateQuestion();
+            //updateQuestion();
         }
     }
 
@@ -513,21 +407,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         typeInInputTextView.setText(typeInDigitsString);
     }
 
-    private Animation onWrongAnswer() {
+    private void userAnswerIsWrong() {
         Toast.makeText(GameActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
-        //shakeAnimation();
+        shakeAnimation();
         updateScore();
-        return shakeAnimation();
     }
 
-    private Animation onCorrectAnswer() {
+    private void userAnswerIsCorrect() {
         Toast.makeText(GameActivity.this, "Correct!", Toast.LENGTH_SHORT).show();
         appState.addToCurrentScore(1);
+        fadeView();
         updateScore();
-        return fadeViewAnimation();
     }
 
-    private Animation fadeViewAnimation() {
+    private void fadeView() {
         final CardView cardView = findViewById(R.id.card_view);
         AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f, 0.0f);
 
@@ -546,17 +439,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onAnimationEnd(Animation animation) {
                 cardView.setCardBackgroundColor(Color.WHITE);
+                updateQuestion();
             }
 
             @Override
             public void onAnimationRepeat(Animation animation) { }
         });
 
-        return alphaAnimation;
-
     }
 
-    private Animation shakeAnimation() {
+    private void shakeAnimation() {
         Animation shake = AnimationUtils.loadAnimation(GameActivity.this,
                 R.anim.shake_animation);
         final CardView cardView = findViewById(R.id.card_view);
@@ -571,6 +463,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onAnimationEnd(Animation animation) {
                 cardView.setCardBackgroundColor(Color.WHITE);
+                updateQuestion();
             }
 
             @Override
@@ -579,7 +472,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        return shake;
     }
 
 }
